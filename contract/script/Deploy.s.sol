@@ -19,6 +19,11 @@ contract DeployBettingContract is Script {
 
         BettingContract bettingContract = new BettingContract(agentNames, bettingDuration);
 
+        // Use faucet to get some initial USDC for the deployer
+        USDC(bettingContract.usdcToken()).faucet();
+        
+        console.log("BettingContract deployed at:", address(bettingContract));
+        console.log("USDC token address:", address(bettingContract.usdcToken()));
         vm.stopBroadcast();
     }
 }

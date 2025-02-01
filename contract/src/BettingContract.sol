@@ -3,10 +3,24 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 
-contract USDC is ERC20 {
+contract USDC is ERC20, Ownable(msg.sender) {
+
+    uint256 public constant FAUCET_AMOUNT = 100000 * 10**6; // 100000 USDC
+    uint256 public constant FAUCET_COOLDOWN = 2 minutes;
+    mapping(address => uint256) public lastFaucetTimestamp;
     constructor(uint256 initialSupply) ERC20("USDC Testnet", "USDC") {
         _mint(msg.sender, initialSupply);
+    }
+
+    function faucet() external{
+        require(
+            block.timestamp - lastFaucetTimestamp[msg.sender] >= FAUCET_COOLDOWN,
+            "Faucet cooldown not expired"
+        );
+        lastFaucetTimestamp[msg.sender] = block.timestamp;
+        _mint(msg.sender, FAUCET_AMOUNT);
     }
 }
 
@@ -31,11 +45,12 @@ contract BettingContract is Ownable(msg.sender) {
     event RewardsClaimed(address user, uint256 amount);
 
     constructor(string[] memory _agentNames, uint256 _bettingDuration) {
-        for (uint256 i = 0; i < _agentNames.length; i++) {
-            agents.push(Agent(_agentNames[i], 0));
-        }
-        bettingEndTime = block.timestamp + _bettingDuration;
+    for (uint256 i = 0; i < _agentNames.length; i++) {
+        agents.push(Agent(_agentNames[i], 0));
+    }
+    bettingEndTime = block.timestamp + _bettingDuration;
         usdcToken = new USDC(1000000 * 10**6); // 1 million USDC
+        usdcToken.transferOwnership(address(this));
     }
 
     function placeBet(uint256 _agentIndex, uint256 _amount) external {

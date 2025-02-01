@@ -1,0 +1,1 @@
+source .env && forge script script/Deploy.s.sol:DeployBettingContract --rpc-url $BASE_SEPOLIA_RPC_URL --broadcast --verify
