@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -10,7 +10,7 @@ contract USDC is ERC20 {
     }
 }
 
-contract BettingContract is Ownable {
+contract BettingContract is Ownable(msg.sender) {
     USDC public usdcToken;
     uint256 public bettingEndTime;
     uint256 public constant PROTOCOL_FEE = 5; // 5% fee
